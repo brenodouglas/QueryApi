@@ -1,27 +1,25 @@
 <?php
 namespace QueryApi\Parse\Interfaces;
 
-use Illuminate\Database\Query\Builder;
 use QueryApi\Parse\Clausules\Where;
 
 
 /**
  * Collection with Where parameter for Query
  */
-interface WhereCollectionInterface extends Iterator
+interface WhereCollectionInterface extends \Iterator, \Countable
 {
 
 	/**
 	 * Execute query with where parameters
-	 * @param  Builder $query [description]
-	 * @return Builder $query [description]
+	 * @param  Builder $query 
+	 * @return Builder $query 
 	 */
-	public function executeQuery(Builder $query);
+	public function execute($query);
 
 	/**
 	 * Append Where object in collection
-	 * @param  Where  $where [description]
-	 * @return [type]        [description]
+	 * @param  Where  $where    
 	 */
 	public function append(Where $where);
 	

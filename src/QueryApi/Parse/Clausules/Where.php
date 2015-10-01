@@ -81,10 +81,19 @@ class Where implements WhereParameterInterface
 	}
 
 	/**
-	 * [getName get operator where]
+	 * getName get operator where
 	 * @return [string] 
 	 */
 	public function getOperator()
+	{
+		return $this->operator;
+	}
+
+	/**
+	 * getName get operator where value
+	 * @return [string] 
+	 */
+	public function getOperatorValue()
 	{
 		$operator = Where::OPERATOR[$this->operator];
 
