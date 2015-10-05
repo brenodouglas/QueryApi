@@ -22,10 +22,15 @@ class Where implements WhereParameterInterface
 		'lte'    => '<=',
 		'gt'     => '>',
 		'get'    => '>=',
-		'isNull' => 'IS NULL|IS NOT NULL',
-		'like'      => 'like',
-		'between'   => null
+		'like'      => 'LIKE'
  	]; 
+
+ 	const ESPECIAL_OPERATORS = [
+ 		'isNull'    => 'whereNull',
+		'isNotNull' => "whereNotNull",
+		'between'   => 'whereBetween',
+		'in'        => 'whereIn'
+ 	];
 
 	/**
 	 * Construct where clausule for SQL
@@ -37,7 +42,7 @@ class Where implements WhereParameterInterface
 	{
 		if($operator != null && $name != null && $value != null) {
 			$this->validOperator($operator);
-			$operatorAux = Where::OPERATOR[$operator];
+			$operatorAux = array_key_exists($operator, Where::OPERATOR) ?  Where::OPERATOR[$operator] : Where::ESPECIAL_OPERATORS[$operator];
 
 			$this->validValue($operatorAux, $value);
 		}
@@ -95,20 +100,10 @@ class Where implements WhereParameterInterface
 	 */
 	public function getOperatorValue()
 	{
-		$operator = Where::OPERATOR[$this->operator];
+		if(array_key_exists($this->operator, Where::ESPECIAL_OPERATORS))
+			return Where::ESPECIAL_OPERATORS[$this->operator];
 
-		if( substr_count($operator, '|') > 0)
-		{
-
-			list($valueTrue, $valueFalse) = explode('|', $operator);
-
-			if ( $this->value )
-				return $valueTrue;
-			else
-				return $valueFalse;
-		}
-
-		return $operator;
+		return Where::OPERATOR[$this->operator];
 	}
 
 	/**
@@ -117,7 +112,7 @@ class Where implements WhereParameterInterface
 	 */
 	private function validOperator($operator)
 	{
-		if( ! array_key_exists($operator, Where::OPERATOR))
+		if( ! array_key_exists($operator, Where::OPERATOR) && ! array_key_exists($operator, Where::ESPECIAL_OPERATORS))
 			throw new \InvalidArgumentException('Operator '.$operator.' not exists');
 	}
 
@@ -140,13 +135,16 @@ class Where implements WhereParameterInterface
 				if(! is_string($value) && ! is_numeric($value) && ! is_int($value))
 					throw new \InvalidArgumentException('Operator '.$operator.' not expected '.json_encode($value));
 				break;
-			case Where::OPERATOR['isNull']:
+			case Where::ESPECIAL_OPERATORS['isNull']:
 				if(! is_bool($value))
 					throw new \InvalidArgumentException('Operator '.$operator.' not expected '.$value);
-
 				break;
-			case Where::OPERATOR['between']:
+			case Where::ESPECIAL_OPERATORS['between']:
 				if(! is_array($value) || count($value) != 2)
+					throw new \InvalidArgumentException('Operator '.$operator.' not expected '. is_array($value) ? json_encode($value) : $value);
+				break;
+			case Where::ESPECIAL_OPERATORS['in']:
+				if(! is_array($value) || count($value) < 2)
 					throw new \InvalidArgumentException('Operator '.$operator.' not expected '. is_array($value) ? json_encode($value) : $value);
 				break;
 		}

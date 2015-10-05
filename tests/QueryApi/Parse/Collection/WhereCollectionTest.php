@@ -10,12 +10,27 @@ use PHPUnit_Framework_TestCase as PHPUnit;
 class WhereCollectionTest extends PHPUnit
 {
 
-	public function testCreateCollectionWithTwoWhere() 
+	public function test_create_collection_with_two_where() 
 	{
-		$queryMock = new Query();
+
+		$mockQuery = $this->getMockQuery();
+
+		$mockQuery->expects($this->once())
+				  ->method('where')
+				  ->with(
+				  		$this->equalTo('id'), 
+				  		$this->equalTo('='),
+				  		$this->equalTo(1)	
+			  	  );
+
+  	    $mockQuery->expects($this->once())
+  	              ->method('whereNull')
+  	              ->with(
+  	              		$this->equalTo('nome')
+  	              );
 
 		$collection = new WhereCollection();
-		$whereOne = new Where('id', 'eq', 'name');
+		$whereOne = new Where('id', 'eq', 1);
 		$whereTwo = new Where('nome', 'isNull', true);
 
 		$collection->append($whereOne);
@@ -23,10 +38,21 @@ class WhereCollectionTest extends PHPUnit
 
 		$this->assertCount(2, $collection);
 
-		$query = $collection->execute($queryMock);
-
-		$this->assertEquals('WHERE id = :id AND nome IS NULL ', $query->getQuery());
-		$this->assertCount(2, $query->getParameters());
+		$query = $collection->execute($mockQuery);
 	}
 
+	private function getMockQuery()
+	{
+		return $this->getMockBuilder('Illuminate\Database\Query\Builder')
+						  ->setMethods([
+						  		'where', 
+						  		'whereNull', 
+						  		'whereNotNull', 
+						  		'whereBetween', 
+						  		'whereNotBetween', 
+						  		'whereIn', 
+						  		'whereNotIn'
+				  			])
+						  ->getMock();
+	}
 }

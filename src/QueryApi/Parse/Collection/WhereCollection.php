@@ -3,6 +3,7 @@ namespace QueryApi\Parse\Collection;
 
 use QueryApi\Parse\Interfaces\WhereCollectionInterface;
 use QueryApi\Parse\Clausules\Where;
+use Illuminate\Database\Query\Builder;
 
 class WhereCollection implements WhereCollectionInterface
 {
@@ -32,56 +33,40 @@ class WhereCollection implements WhereCollectionInterface
 	 * @param  Builder $query
 	 * @return Builder $query 
 	 * */
-	public function execute($query)
+	public function execute(Builder $query)
 	{
 		$isWhere = false;
 		$count = 0;
 
-		foreach($this->getValuesIterator() as $where) 
-		{
+		foreach($this->getValuesIterator() as $where):
+		
 			$operator = $where->getOperator();
+				
+			if ( array_key_exists($operator, Where::ESPECIAL_OPERATORS)) {
+				
+				$method = $where->getOperatorValue();
 
-			if (! $isWhere) {
-				
-				if( $where->getOperator() == 'isNull') {
-
-					$count > 0 ? $query->andWhereIsNull($where->getName(), $where->getOperatorValue()) :
-								 $query->whereIsNull($where->getName(), $where->getOperatorValue());
-				
-				} else if ( $where->getOperatorValue() == Where::OPERATOR['like'] ) {
-				
-					$count > 0 ? $query->andWhere($where->getName(), $where->getOperatorValue(), '%'.$where->getValue().'%') : 
-								 $query->where($where->getName(), $where->getOperatorValue(), '%'.$where->getValue().'%');
-				
-				} else { 
-					$count > 0 ? $query->andWhere($where->getName(), $where->getOperatorValue(), $where->getValue()) : 
-								 $query->where($where->getName(), $where->getOperatorValue(), $where->getValue());
-				}
-
-				$isWhere = true;
-				
-				$count++;
+				switch ($method):
+					case Where::ESPECIAL_OPERATORS['isNull']:
+					case Where::ESPECIAL_OPERATORS['isNotNull']:
+						$query->$method($where->getName());
+						break;
+					case Where::ESPECIAL_OPERATORS['between']:
+					case Where::ESPECIAL_OPERATORS['in']:
+						$query->$method($where->getName(), $where->getValue());
+						break;
+				endswitch;
 
 				continue;
-			} 
-
-			if( $where->getOperator() == 'isNull' ) {
-
-				$count > 0 ? $query->andWhereIsNull($where->getName(), $where->getOperatorValue()) :
-							 $query->whereIsNull($where->getName(), $where->getOperatorValue());
-			
 			} else if ( $where->getOperatorValue() == Where::OPERATOR['like'] ) {
-			
-				$count > 0 ? $query->andWhere($where->getName(), $where->getOperatorValue(), '%'.$where->getValue().'%') : 
-							 $query->where($where->getName(), $where->getOperatorValue(), '%'.$where->getValue().'%');
-			
+				$value = '%'.$where->getValue().'%';
 			} else { 
-				$count > 0 ? $query->andWhere($where->getName(), $where->getOperatorValue(), $where->getValue()) : 
-							 $query->where($where->getName(), $where->getOperatorValue(), $where->getValue());
+				$value = $where->getValue();
 			}
 
-			$count++;
-		}
+			$query->where($where->getName(), $where->getOperatorValue(), $value);
+
+		endforeach;
 
 		return $query;
 	}

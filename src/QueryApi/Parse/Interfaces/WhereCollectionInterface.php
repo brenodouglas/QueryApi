@@ -2,6 +2,7 @@
 namespace QueryApi\Parse\Interfaces;
 
 use QueryApi\Parse\Clausules\Where;
+use Illuminate\Database\Query\Builder;
 
 
 /**
@@ -15,12 +16,13 @@ interface WhereCollectionInterface extends \Iterator, \Countable
 	 * @param  Builder $query 
 	 * @return Builder $query 
 	 */
-	public function execute($query);
+	public function execute(Builder $query);
 
 	/**
 	 * Append Where object in collection
 	 * @param  Where  $where    
 	 */
 	public function append(Where $where);
+	
 	
 }

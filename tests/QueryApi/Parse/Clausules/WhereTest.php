@@ -9,7 +9,7 @@ use PHPUnit_Framework_TestCase as PHPUnit;
 class WhereTest extends PHPUnit
 {
 
-	public function testCreateWhere()
+	public function test_create_basic_where()
 	{
 		$where = new Where('id', 'lt', 2);
 		$where2 = new Where('id', 'eq', 7);
@@ -23,12 +23,12 @@ class WhereTest extends PHPUnit
 		$this->assertEquals(7, $where2->getValue());
 	}
 
-	public function testExtractArrayWithIsNullOperator()
+	public function test_create_where_extract_array()
 	{
 		$where = new Where();
 		$where->extractInArray(['id' => ['isNull' => true]]);
 
-		$this->assertEquals('IS NULL', $where->getOperatorValue());
+		$this->assertEquals('whereNull', $where->getOperatorValue());
 		$this->assertEquals('id', $where->getName());
 		$this->assertNull($where->getValue());
 	}
@@ -36,7 +36,7 @@ class WhereTest extends PHPUnit
 	/**
      * @expectedException InvalidArgumentException
      */
-	public function testCreateWhereWithInvalidOperator()
+	public function test_create_where_with_invalid_operator()
 	{
 		$where = new Where('id', 'xxx', 2);
 	}
@@ -44,7 +44,7 @@ class WhereTest extends PHPUnit
 	/**
      * @expectedException InvalidArgumentException
      */
-	public function testExtractArrrayWithInvalidOperator()
+	public function test_create_where_extract_array_with_invalid_operator()
 	{
 		$where = new Where();
 		$where->extractInArray(['id' => ['xxx' => true]]);
@@ -53,7 +53,7 @@ class WhereTest extends PHPUnit
 	/**
      * @expectedException InvalidArgumentException
      */
-	public function testCreateWhereWithInvalidValueExpectedUnique()
+	public function test_create_basic_where_with_invalid_values_basic_operator_equals()
 	{
 		$where = new Where('id', 'eq', [1, 2, 3]);
 	}
@@ -61,7 +61,7 @@ class WhereTest extends PHPUnit
 	/**
      * @expectedException InvalidArgumentException
      */
-	public function testCreateWhereWithInvalidValueExpectedArrayTwoPosition()
+	public function test_create_basic_where_with_invalid_values_especial_operator_between()
 	{
 		$where = new Where('id', 'between', [1, 2, 3]);
 	}
@@ -69,7 +69,7 @@ class WhereTest extends PHPUnit
 	/**
      * @expectedException InvalidArgumentException
      */
-	public function testCreateWhereWithInvalidValueExpectedBoolean()
+	public function test_create_basic_where_with_invalid_values_especial_operator_is_null()
 	{
 		$where = new Where('id', 'isNull', 3);
 	}
