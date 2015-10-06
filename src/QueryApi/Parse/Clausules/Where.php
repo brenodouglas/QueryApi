@@ -1,36 +1,19 @@
 <?php 
 namespace QueryApi\Parse\Clausules;
 
-use QueryApi\Parse\Interfaces\WhereParameterInterface;
+use QueryApi\Parse\Interfaces\Parameter\CollectionParameterInterface;
+use QueryApi\Parse\Validator\WhereValidator;
+use QueryApi\Parse\Interfaces\ValidatorOperator;
 
-class Where implements WhereParameterInterface 
+class Where implements CollectionParameterInterface 
 {
-
 	private $value;
 
 	private $operator;
 
 	private $name;
 
-	/**
-	 * Operator to the query strings
-	 */
-	const OPERATOR = [
-		'eq'     => '=',
-		'neq'    => '<>',
-		'lt'     => '<',
-		'lte'    => '<=',
-		'gt'     => '>',
-		'get'    => '>=',
-		'like'      => 'LIKE'
- 	]; 
-
- 	const ESPECIAL_OPERATORS = [
- 		'isNull'    => 'whereNull',
-		'isNotNull' => "whereNotNull",
-		'between'   => 'whereBetween',
-		'in'        => 'whereIn'
- 	];
+	private $validator;
 
 	/**
 	 * Construct where clausule for SQL
@@ -40,16 +23,16 @@ class Where implements WhereParameterInterface
 	 */
 	public function __construct($name = null, $operator = null, $value = null)
 	{
-		if($operator != null && $name != null && $value != null) {
-			$this->validOperator($operator);
-			$operatorAux = array_key_exists($operator, Where::OPERATOR) ?  Where::OPERATOR[$operator] : Where::ESPECIAL_OPERATORS[$operator];
+		$this->validator = new WhereValidator();
 
-			$this->validValue($operatorAux, $value);
+		if($operator != null && $name != null && $value != null) {
+			$this->name = $name;
+			$this->operator = $operator;
+			$this->value = $value;
+
+			$this->validator->isValid($this);
 		}
 		
-		$this->name = $name;
-		$this->operator = $operator;
-		$this->value = $value;
 	}
 
 	/**
@@ -63,8 +46,7 @@ class Where implements WhereParameterInterface
 		$this->operator = key($where[$this->name]);
 		$this->value = $where[$this->name][$this->operator];
 
-		$this->validOperator($this->operator);
-		$this->validValue($this->operator, $this->value);
+		$this->validator->isValid($this);
 	}
 
 	/**
@@ -77,12 +59,12 @@ class Where implements WhereParameterInterface
 	}
 
 	/**
-	 * [getName get value]
-	 * @return [string] 
+	 * get value of clausule
+	 * @return string|boolean|number
 	 */
 	public function getValue()
 	{
-		return is_bool($this->value) ? null : $this->value;
+		return $this->value;
 	}
 
 	/**
@@ -100,54 +82,46 @@ class Where implements WhereParameterInterface
 	 */
 	public function getOperatorValue()
 	{
-		if(array_key_exists($this->operator, Where::ESPECIAL_OPERATORS))
-			return Where::ESPECIAL_OPERATORS[$this->operator];
+		if(array_key_exists($this->operator, WhereValidator::ESPECIAL_OPERATORS))
+			return WhereValidator::ESPECIAL_OPERATORS[$this->operator];
 
-		return Where::OPERATOR[$this->operator];
+		return WhereValidator::OPERATOR[$this->operator];
+	}
+
+	public function setValidator(ValidatorOperator $validator)
+	{
+		$this->validator = $validator;
+	}
+
+		/**
+	 * setName set name field
+	 * @return string
+	 */
+	public function setName($name)
+	{
+		$this->name = $name;
 	}
 
 	/**
-	 * Valid operator passed for Where
-	 * @param  string $operator valid operator in Where::OPERATOR
+	 * setValue set value 
+	 * @return string]
 	 */
-	private function validOperator($operator)
+	public function setValue($value)
 	{
-		if( ! array_key_exists($operator, Where::OPERATOR) && ! array_key_exists($operator, Where::ESPECIAL_OPERATORS))
-			throw new \InvalidArgumentException('Operator '.$operator.' not exists');
+		$this->validator->validValue($this->operator, $value);
+
+		$this->value = $value;
 	}
 
 	/**
-	 * Valid value acoording operator
-	 * @param  [type] $operator [description]
-	 * @param  [type] $value    [description]
-	 * @return [type]           [description]
+	 * setOperator set operator where
+	 * @return string
 	 */
-	private function validValue($operator, $value)
+	public function setOperator($operator)
 	{
-		switch ($operator) {
-			case Where::OPERATOR['eq']:
-			case Where::OPERATOR['neq']:
-			case Where::OPERATOR['lt']:
-			case Where::OPERATOR['lte']:
-			case Where::OPERATOR['gt']:
-			case Where::OPERATOR['like']:   
-			case Where::OPERATOR['get']:
-				if(! is_string($value) && ! is_numeric($value) && ! is_int($value))
-					throw new \InvalidArgumentException('Operator '.$operator.' not expected '.json_encode($value));
-				break;
-			case Where::ESPECIAL_OPERATORS['isNull']:
-				if(! is_bool($value))
-					throw new \InvalidArgumentException('Operator '.$operator.' not expected '.$value);
-				break;
-			case Where::ESPECIAL_OPERATORS['between']:
-				if(! is_array($value) || count($value) != 2)
-					throw new \InvalidArgumentException('Operator '.$operator.' not expected '. is_array($value) ? json_encode($value) : $value);
-				break;
-			case Where::ESPECIAL_OPERATORS['in']:
-				if(! is_array($value) || count($value) < 2)
-					throw new \InvalidArgumentException('Operator '.$operator.' not expected '. is_array($value) ? json_encode($value) : $value);
-				break;
-		}
+		$this->validator->validOperator($operator);
+
+		$this->operator = $operator;
 	}
 
 }

@@ -30,47 +30,6 @@ class WhereTest extends PHPUnit
 
 		$this->assertEquals('whereNull', $where->getOperatorValue());
 		$this->assertEquals('id', $where->getName());
-		$this->assertNull($where->getValue());
 	}
 
-	/**
-     * @expectedException InvalidArgumentException
-     */
-	public function test_create_where_with_invalid_operator()
-	{
-		$where = new Where('id', 'xxx', 2);
-	}
-
-	/**
-     * @expectedException InvalidArgumentException
-     */
-	public function test_create_where_extract_array_with_invalid_operator()
-	{
-		$where = new Where();
-		$where->extractInArray(['id' => ['xxx' => true]]);
-	}
-
-	/**
-     * @expectedException InvalidArgumentException
-     */
-	public function test_create_basic_where_with_invalid_values_basic_operator_equals()
-	{
-		$where = new Where('id', 'eq', [1, 2, 3]);
-	}
-
-	/**
-     * @expectedException InvalidArgumentException
-     */
-	public function test_create_basic_where_with_invalid_values_especial_operator_between()
-	{
-		$where = new Where('id', 'between', [1, 2, 3]);
-	}
-
-	/**
-     * @expectedException InvalidArgumentException
-     */
-	public function test_create_basic_where_with_invalid_values_especial_operator_is_null()
-	{
-		$where = new Where('id', 'isNull', 3);
-	}
 }
