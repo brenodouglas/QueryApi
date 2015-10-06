@@ -12,17 +12,9 @@ interface WhereCollectionInterface extends \Iterator, \Countable
 {
 
 	/**
-	 * Execute query with where parameters
-	 * @param  Builder $query 
-	 * @return Builder $query 
-	 */
-	public function execute(Builder $query);
-
-	/**
 	 * Append Where object in collection
 	 * @param  Where  $where    
 	 */
 	public function append(Where $where);
-	
 	
 }
