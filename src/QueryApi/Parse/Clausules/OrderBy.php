@@ -13,12 +13,6 @@ class OrderBy implements KeyValueParameterInterface
 
 	private $validator;
 
-	/**
-	 * Construct clausule for SQL
-	 * @param String $name     Fiel database name
-	 * @param String $operator operator in clausule
-	 * @param String $value    value for comparator in clause
-	 */
 	public function __construct($name = null, $value = null)
 	{
 		$this->validator = new OrderByValidator();
@@ -32,11 +26,6 @@ class OrderBy implements KeyValueParameterInterface
 		
 	}
 
-	/**
-	 * extractInArray extract clauses in array
-	 * @param  array  $where  pattern to the array: ['id' => 'DESC']] 
-	 * @return void
-	 */
 	public function extractInArray(array $array)
 	{
 		$this->name = key($array);
@@ -45,38 +34,22 @@ class OrderBy implements KeyValueParameterInterface
 		$this->validator->isValid($this);
 	}
 	
-	/**
-	 * getName get value
-	 * @return string]
-	 */
 	public function getValue()
 	{
 		return $this->value;
 	}
 
-	/**
-	 * setValue set value 
-	 * @return string]
-	 */
 	public function setValue($value)
 	{
 		$this->value = $value;
 		$this->validator->isValid($this);
 	}
 
-	/**
-	 * getName get name field
-	 * @return string
-	 */
 	public function getName()
 	{
 		return $this->name;
 	}
-
-	/**
-	 * set name value
-	 * @param string $name name of column in clausule
-	 */
+	
 	public function setName($name)
 	{
 		$this->name = $name;
