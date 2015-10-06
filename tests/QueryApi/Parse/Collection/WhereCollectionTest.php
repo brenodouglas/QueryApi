@@ -3,17 +3,17 @@ namespace QueryApi\Parse\Collection;
 
 use QueryApi\Parse\Collection\WhereCollection,
 	QueryApi\Parse\Clausules\Where,
-	QueryApi\Parse\Test\Query;
+	QueryApi\Parse\Test\Query,
+	QueryApi\Parse\Builder\MockQueryBuilder;
 
 use PHPUnit_Framework_TestCase as PHPUnit;
 
 class WhereCollectionTest extends PHPUnit
 {
-
 	public function test_create_collection_with_two_where() 
 	{
 
-		$mockQuery = $this->getMockQuery();
+		$mockQuery = (new MockQueryBuilder())->buildMock($this);
 
 		$mockQuery->expects($this->once())
 				  ->method('where')
@@ -39,20 +39,6 @@ class WhereCollectionTest extends PHPUnit
 		$this->assertCount(2, $collection);
 
 		$query = $collection->execute($mockQuery);
-	}
-
-	private function getMockQuery()
-	{
-		return $this->getMockBuilder('Illuminate\Database\Query\Builder')
-						  ->setMethods([
-						  		'where', 
-						  		'whereNull', 
-						  		'whereNotNull', 
-						  		'whereBetween', 
-						  		'whereNotBetween', 
-						  		'whereIn', 
-						  		'whereNotIn'
-				  			])
-						  ->getMock();
+		$this->assertInstanceOf('Illuminate\Database\Query\Builder', $query);
 	}
 }

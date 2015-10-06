@@ -3,7 +3,7 @@ namespace QueryApi\Parse\Interfaces;
 
 use Illuminate\Database\Query\Builder;
 
-interface Queriable 
+interface Queriable
 {
     /**
 	 * Execute query with where parameters

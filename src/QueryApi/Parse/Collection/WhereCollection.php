@@ -1,38 +1,17 @@
 <?php 
 namespace QueryApi\Parse\Collection;
 
-use QueryApi\Parse\Interfaces\WhereCollectionInterface;
+use QueryApi\Parse\Interfaces\ClausuleCollectionInterface;
+
+use QueryApi\Parse\Interfaces\Queriable;
 use QueryApi\Parse\Clausules\Where;
+use QueryApi\Parse\Validator\WhereValidator;
+
 use Illuminate\Database\Query\Builder;
 
-class WhereCollection implements WhereCollectionInterface
+class WhereCollection extends AbstractCollection implements Queriable
 {
 
-	private $values = [];
-
-	private $current = 0;
-
-
-	public function count() 
-	{
-		return count($this->values);
-	}
-
-	/**
-	 * [getValues description]
-	 * @return [Where] 
-	 */
-	private function getValuesIterator() 
-	{
-		foreach ($this->values as $value) 
-			yield $value;
-	}
-
-	/**
-	 * Execute query with where parameters
-	 * @param  Builder $query
-	 * @return Builder $query 
-	 * */
 	public function execute(Builder $query)
 	{
 		$isWhere = false;
@@ -42,23 +21,23 @@ class WhereCollection implements WhereCollectionInterface
 		
 			$operator = $where->getOperator();
 				
-			if ( array_key_exists($operator, Where::ESPECIAL_OPERATORS)) {
+			if ( array_key_exists($operator, WhereValidator::ESPECIAL_OPERATORS)) {
 				
 				$method = $where->getOperatorValue();
 
 				switch ($method):
-					case Where::ESPECIAL_OPERATORS['isNull']:
-					case Where::ESPECIAL_OPERATORS['isNotNull']:
+					case WhereValidator::ESPECIAL_OPERATORS['isNull']:
+					case WhereValidator::ESPECIAL_OPERATORS['isNotNull']:
 						$query->$method($where->getName());
 						break;
-					case Where::ESPECIAL_OPERATORS['between']:
-					case Where::ESPECIAL_OPERATORS['in']:
+					case WhereValidator::ESPECIAL_OPERATORS['between']:
+					case WhereValidator::ESPECIAL_OPERATORS['in']:
 						$query->$method($where->getName(), $where->getValue());
 						break;
 				endswitch;
 
 				continue;
-			} else if ( $where->getOperatorValue() == Where::OPERATOR['like'] ) {
+			} else if ( $where->getOperatorValue() == WhereValidator::OPERATOR['like'] ) {
 				$value = '%'.$where->getValue().'%';
 			} else { 
 				$value = $where->getValue();
@@ -71,42 +50,4 @@ class WhereCollection implements WhereCollectionInterface
 		return $query;
 	}
 
-	/**
-	 * Append Where object in collection
-	 * @param  Where  $where [description]
-	 */
-	public function append(Where $where)
-	{
-		$this->next();
-		$this->values[$this->current] = $where;
-	}
-
-	/**
-	 * [current description]
-	 * @return [Where] [Where clausule]
-	 */
-	public function current() 
-	{
-		return $this->values[$this->current];
-	}
-	
-	public function next() 
-	{
-		$this->current += 1;
-	}
-	
-	public function rewind() 
-	{
-		$this->current = 0;
-	}
-	
-	public function key() 
-	{
-		return $this->current;
-	}
-	
-	public function valid() 
-	{
-		return isset($this->keys[$this->current]);
-	}
 }
