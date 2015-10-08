@@ -9,7 +9,7 @@ class OrderByValidator implements ValidatorInterface
 	/**
 	 * Operator to the query strings
 	 */
-	const OPERATOR = [
+	public static $operator = [
 		'DESC',
 		'ASC'
  	]; 
@@ -26,7 +26,7 @@ class OrderByValidator implements ValidatorInterface
 	 */
 	public function validValue($value)
 	{
-		$key = array_search($value, OrderByValidator::OPERATOR);
+		$key = array_search($value, OrderByValidator::$operator);
 
 		if (! is_int($key) && ! $key)
 			throw new \InvalidArgumentException('operator '.$value.' invalid');
