@@ -10,7 +10,7 @@ class WhereValidator implements ValidatorCollectionOperator
 	/**
 	 * Operator to the query strings
 	 */
-	const OPERATOR = [
+	public static $operator = [
 		'eq'     => '=',
 		'neq'    => '<>',
 		'lt'     => '<',
@@ -20,7 +20,7 @@ class WhereValidator implements ValidatorCollectionOperator
 		'like'      => 'LIKE'
  	]; 
 
- 	const ESPECIAL_OPERATORS = [
+ 	public static $especial_operator = [
  		'isNull'    => 'whereNull',
 		'isNotNull' => "whereNotNull",
 		'between'   => 'whereBetween',
@@ -36,25 +36,25 @@ class WhereValidator implements ValidatorCollectionOperator
 	public function validValue($operator, $value)
 	{
 		switch ($operator) {
-			case WhereValidator::OPERATOR['eq']:
-			case WhereValidator::OPERATOR['neq']:
-			case WhereValidator::OPERATOR['lt']:
-			case WhereValidator::OPERATOR['lte']:
-			case WhereValidator::OPERATOR['gt']:
-			case WhereValidator::OPERATOR['like']:   
-			case WhereValidator::OPERATOR['get']:
+			case WhereValidator::$operator['eq']:
+			case WhereValidator::$operator['neq']:
+			case WhereValidator::$operator['lt']:
+			case WhereValidator::$operator['lte']:
+			case WhereValidator::$operator['gt']:
+			case WhereValidator::$operator['like']:   
+			case WhereValidator::$operator['get']:
 				if(! is_string($value) && ! is_numeric($value) && ! is_int($value))
 					throw new \InvalidArgumentException('Operator '.$operator.' not expected '.json_encode($value));
 				break;
-			case WhereValidator::ESPECIAL_OPERATORS['isNull']:
+			case WhereValidator::$especial_operator['isNull']:
 				if(! is_bool($value))
 					throw new \InvalidArgumentException('Operator '.$operator.' not expected '.$value);
 				break;
-			case WhereValidator::ESPECIAL_OPERATORS['between']:
+			case WhereValidator::$especial_operator['between']:
 				if(! is_array($value) || count($value) != 2)
 					throw new \InvalidArgumentException('Operator '.$operator.' not expected '. is_array($value) ? json_encode($value) : $value);
 				break;
-			case WhereValidator::ESPECIAL_OPERATORS['in']:
+			case WhereValidator::$especial_operator['in']:
 				if(! is_array($value) || count($value) < 2)
 					throw new \InvalidArgumentException('Operator '.$operator.' not expected '. is_array($value) ? json_encode($value) : $value);
 				break;
@@ -67,7 +67,7 @@ class WhereValidator implements ValidatorCollectionOperator
 
 	public function validOperator($operator)
 	{
-		if( ! array_key_exists($operator, WhereValidator::OPERATOR) && ! array_key_exists($operator, WhereValidator::ESPECIAL_OPERATORS))
+		if( ! array_key_exists($operator, WhereValidator::$operator) && ! array_key_exists($operator, WhereValidator::$especial_operator))
 			throw new \InvalidArgumentException('Operator '.$operator.' not exists');
 
 		return true;

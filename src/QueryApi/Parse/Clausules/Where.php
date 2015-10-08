@@ -82,10 +82,10 @@ class Where implements CollectionParameterInterface
 	 */
 	public function getOperatorValue()
 	{
-		if(array_key_exists($this->operator, WhereValidator::ESPECIAL_OPERATORS))
-			return WhereValidator::ESPECIAL_OPERATORS[$this->operator];
+		if(array_key_exists($this->operator, WhereValidator::$especial_operator))
+			return WhereValidator::$especial_operator[$this->operator];
 
-		return WhereValidator::OPERATOR[$this->operator];
+		return WhereValidator::$operator[$this->operator];
 	}
 
 	public function setValidator(ValidatorOperator $validator)

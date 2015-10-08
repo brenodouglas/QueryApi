@@ -21,23 +21,23 @@ class WhereCollection extends AbstractCollection implements Queriable
 		
 			$operator = $where->getOperator();
 				
-			if ( array_key_exists($operator, WhereValidator::ESPECIAL_OPERATORS)) {
+			if ( array_key_exists($operator, WhereValidator::$especial_operator)) {
 				
 				$method = $where->getOperatorValue();
 
 				switch ($method):
-					case WhereValidator::ESPECIAL_OPERATORS['isNull']:
-					case WhereValidator::ESPECIAL_OPERATORS['isNotNull']:
+					case WhereValidator::$especial_operator['isNull']:
+					case WhereValidator::$especial_operator['isNotNull']:
 						$query->$method($where->getName());
 						break;
-					case WhereValidator::ESPECIAL_OPERATORS['between']:
-					case WhereValidator::ESPECIAL_OPERATORS['in']:
+					case WhereValidator::$especial_operator['between']:
+					case WhereValidator::$especial_operator['in']:
 						$query->$method($where->getName(), $where->getValue());
 						break;
 				endswitch;
 
 				continue;
-			} else if ( $where->getOperatorValue() == WhereValidator::OPERATOR['like'] ) {
+			} else if ( $where->getOperatorValue() == WhereValidator::$operator['like'] ) {
 				$value = '%'.$where->getValue().'%';
 			} else { 
 				$value = $where->getValue();
