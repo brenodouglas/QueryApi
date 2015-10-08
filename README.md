@@ -1,0 +1,1 @@
+https://travis-ci.org/brenodouglas/QueryApi.svg?branch=master
